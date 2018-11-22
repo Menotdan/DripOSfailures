@@ -6,10 +6,9 @@
 ; Common ISR code
 isr_common_stub:
     ; 1. Save CPU state
-    [bits 32]
-	pusha ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
+	call pushr ; Pushes registers
 	mov ax, ds ; Lower 16-bits of eax = ds.
-	push eax ; save the data segment descriptor
+	;push eax ; save the data segment descriptor
 	mov ax, 0x10  ; kernel data segment descriptor
 	mov ds, ax
 	mov es, ax
@@ -20,41 +19,75 @@ isr_common_stub:
 	call isr_handler
 	
     ; 3. Restore state
-	pop eax 
+	;pop eax 
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	popa
+	call popr
 	add esp, 8 ; Cleans up the pushed error code and pushed ISR number
 	sti
-    [bits 64]
 	iretq ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
 ; Common IRQ code. Identical to ISR code except for the 'call' 
 ; and the 'pop ebx'
 irq_common_stub:
-    [bits 32]
-    pusha 
+    call pushr
     mov ax, ds
-    push eax
+    ;push eax
     mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     call irq_handler ; Different than the ISR code
-    pop ebx  ; Different than the ISR code
+    ;pop ebx  ; Different than the ISR code
     mov ds, bx
     mov es, bx
     mov fs, bx
     mov gs, bx
-    popa
+    call popr
     add esp, 8
     sti
-    [bits 64]
     iretq 
-	
+
+
+pushr:
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push rbp
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+    ret
+
+popr:
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rbp
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
+    ret
+
 ; We don't get information about which interrupt was caller
 ; when the handler is run, so we will need to have a different handler
 ; for every interrupt.

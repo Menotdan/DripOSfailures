@@ -1,6 +1,6 @@
 ; Identical to lesson 13's boot sector, but the %included files have new paths
 [org 0x7c00]
-SECOND_OFFSET equ 0x7E00
+SECOND_OFFSET equ 0x8000
 
     mov [BOOT_DRIVE], dl ; Remember that the BIOS sets us the boot drive in 'dl' on boot
     mov bp, 0x9000
@@ -17,10 +17,11 @@ load_stage_two:
     call print
     call print_nl
 
-    mov bx, SECOND_OFFSET ; Read from disk and store in 0x1000
+    mov bx, SECOND_OFFSET ; Read from disk and store in 0x8000
     mov dh, 2 ; load 2 sectors for second stage
     mov dl, [BOOT_DRIVE]
     call disk_load
+    call SECOND_OFFSET
     ret
 
 

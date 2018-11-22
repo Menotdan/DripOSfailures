@@ -32,7 +32,7 @@ idt_register_t idt_reg;
 
 
 /* Functions implemented in idt.c */
-void set_idt_gate(int n, u32 handler);
+int register_int_handler(size_t num, void (*handler)(void));
 void set_idt();
 
 #endif
