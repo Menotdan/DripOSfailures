@@ -2,22 +2,21 @@
 #define IDT_H
 
 #include "types.h"
+#include <stdint.h>
+#include <stddef.h>
 
 /* Segment selectors */
 #define KERNEL_CS 0x08
 
 /* How every interrupt gate (handler) is defined */
 typedef struct {
-    u16 low_offset; /* Lower 16 bits of handler function address */
-    u16 sel; /* Kernel segment selector */
-    u8 always0;
-    /* First byte
-     * Bit 7: "Interrupt is present"
-     * Bits 6-5: Privilege level of caller (0=kernel..3=user)
-     * Bit 4: Set to 0 for interrupt gates
-     * Bits 3-0: bits 1110 = decimal 14 = "32 bit interrupt gate" */
-    u8 flags; 
-    u16 high_offset; /* Higher 16 bits of handler function address */
+    uint16_t low; // offset bits 0..15
+    uint16_t sel; // a code segment selector in GDT or LDT
+    uint8_t ist;       // bits 0..2 holds Interrupt Stack Table offset, rest of bits zero.
+    uint8_t type_attr; // type and attributes
+    uint16_t mid; // offset bits 16..31
+    uint32_t high; // offset bits 32..63
+    uint32_t always0;     // reserved
 } __attribute__((packed)) idt_gate_t ;
 
 /* A pointer to the array of interrupt handlers.
